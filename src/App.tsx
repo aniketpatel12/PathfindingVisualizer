@@ -1,13 +1,17 @@
+import { Grid } from "./componenets/Grid";
 import { PathFindingProvider } from "./context/PathFindingContext";
-import { TileContext, TileProvider } from "./context/TileContext";
+import { SpeedProvider } from "./context/SpeedContext";
+import { TileProvider } from "./context/TileContext";
 
 function App() {
   return (
     <PathFindingProvider>
       <TileProvider>
-        <h1 className="text-3xl font-bold underline h-screen w-screen bg-blue-500">
-          Hello world!
-        </h1>
+        <SpeedProvider>
+          <div className="h-screen w-screen flex flex-col">
+            <Grid />
+          </div>
+        </SpeedProvider>
       </TileProvider>
     </PathFindingProvider>
   );

@@ -2,9 +2,35 @@ import { twMerge } from "tailwind-merge";
 import { usePathfinding } from "../hooks/usePathfinding";
 import { MAX_ROWS } from "../utils/constants";
 import { Tile } from "./Tile";
+import { MutableRefObject, useState } from "react";
+import { checkIfStartOrEnd, createNewGrid } from "../utils/helpers";
 
-export function Grid(){
-    const {grid} = usePathfinding();
+export function Grid( {isVisualizationRunningRef } : {isVisualizationRunningRef : MutableRefObject<boolean>}){
+    const {grid, setGrid } = usePathfinding();
+    const [ isMouseDown, setIsMoudDown ] = useState(false);
+    
+    const handleMouseDown = (row: number, col: number) => {
+        if (isVisualizationRunningRef.current || checkIfStartOrEnd(row, col)) return;
+
+        setIsMoudDown(true);
+        const newGrid = createNewGrid(grid, row, col);
+        setGrid(newGrid);
+    };
+
+    const hadnelMouseUp = (row: number, col: number) => {
+        if (isVisualizationRunningRef.current || checkIfStartOrEnd(row, col)) return;
+
+        setIsMoudDown(false);
+    };
+
+    const handleMouseEnter = (row: number, col: number) =>{
+        if (isVisualizationRunningRef.current || checkIfStartOrEnd(row, col)) return;
+
+        if (isMouseDown) {
+            const newGrid = createNewGrid(grid, row, col);
+            setGrid(newGrid);
+        }
+    };
 
     return (
         <div 
@@ -17,10 +43,10 @@ export function Grid(){
                 `lg:min-h-[${MAX_ROWS * 17}px] md:min-h-[${MAX_ROWS * 15}px] xs:min-h-[${MAX_ROWS * 8}px] min-h-[${MAX_ROWS * 17}px]`
             )}
         >
-            {grid.map((row, rowIndex) => (
+            {grid.map((r, rowIndex) => (
                 <div key={rowIndex} className="flex">
-                    {row.map((tile, tileIndex) => {
-                        const {isStart, isEnd, isWall, isPath, isTraversed} = tile;
+                    {r.map((tile, tileIndex) => {
+                        const {row, col, isStart, isEnd, isWall, isPath, isTraversed} = tile;
                         return (
                             <Tile 
                                 key={tileIndex}
@@ -31,6 +57,9 @@ export function Grid(){
                                 isWall={isWall}
                                 isPath={isPath}
                                 isTraversed={isTraversed}
+                                handleMouseDown={() => handleMouseDown(row, col)}
+                                handleMouseUp={() => hadnelMouseUp(row, col)}
+                                handleMouseEnter={() => handleMouseEnter(row, col)}
                             />
                         )
                     })}
